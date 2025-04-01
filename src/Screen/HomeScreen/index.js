@@ -1,19 +1,21 @@
 /* eslint-disable prettier/prettier */
 import React, {useState, useEffect, useRef} from 'react';
 import {
+  Alert,
   View,
   FlatList,
   StyleSheet,
-  Text,
   StatusBar,
   TouchableOpacity,
   ScrollView,
   RefreshControl,
+  Dimensions,
 } from 'react-native';
 import {Button} from 'react-native-paper';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import {createStaticNavigation, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {Card, Text, Appbar} from 'react-native-paper';
 
 const Item = ({title, item, onPress, backgroundColor, textColor, action}) => (
   <View style={styles.item}>
@@ -28,6 +30,7 @@ const Item = ({title, item, onPress, backgroundColor, textColor, action}) => (
     </TouchableOpacity>
   </View>
 );
+const {height} = Dimensions.get('window');
 
 const HomeScreen = () => {
   const [listData, setListData] = useState([]);
@@ -107,17 +110,67 @@ const HomeScreen = () => {
       });
   };
 
+  console.log(listData, 'listData');
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
+        <Appbar.Header>
+          <Appbar.Content title="MARK LOCATION" />
+        </Appbar.Header>
         <ScrollView
           contentContainerStyle={styles.scrollView}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }>
-          <Text style={styles.title}>MARK LOCATION</Text>
+          {/* <Text style={styles.title}>MARK LOCATION</Text> */}
 
-          <FlatList
+          {listData.map((item, index) => {
+            return (
+              <Card key={index} style={styles.card}>
+                <Card.Content>
+                  <Text variant="titleLarge">{item.name_location}</Text>
+                  <Text variant="bodyMedium">{item.address}</Text>
+                </Card.Content>
+                <Card.Actions>
+                  <Button
+                    onPress={() => {
+                      // hapusData(item.id);
+                      Alert.alert(
+                        'Delete Data',
+                        'Apakah anda yakin',
+                        [
+                          {
+                            text: 'Yakin',
+                            onPress: () => hapusData(item.id),
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'Tidak',
+                            cancelable: true,
+                            style: 'cancel',
+                          },
+                        ],
+                        {
+                          cancelable: true,
+                        },
+                      );
+                    }}>
+                    Hapus
+                  </Button>
+
+                  <Button
+                    onPress={() => {
+                      navigation.navigate('EntryMapScreen', {
+                        itemId: item.id,
+                      });
+                    }}>
+                    Edit
+                  </Button>
+                </Card.Actions>
+              </Card>
+            );
+          })}
+          {/* <FlatList
             data={listData}
             renderItem={({item}) => (
               <>
@@ -137,7 +190,26 @@ const HomeScreen = () => {
                     <TouchableOpacity
                       style={[styles.item]}
                       onPress={() => {
-                        hapusData(item.id);
+                        // hapusData(item.id);
+                        Alert.alert(
+                          'Delete Data',
+                          'Apakah anda yakin',
+                          [
+                            {
+                              text: 'Yakin',
+                              onPress: () => hapusData(item.id),
+                              style: 'cancel',
+                            },
+                            {
+                              text: 'Tidak',
+                              cancelable: true,
+                              style: 'cancel',
+                            },
+                          ],
+                          {
+                            cancelable: true,
+                          },
+                        );
                       }}>
                       <Text style={[styles.button]}>Hapus</Text>
                     </TouchableOpacity>
@@ -146,7 +218,7 @@ const HomeScreen = () => {
               </>
             )}
             keyExtractor={item => item.id}
-          />
+          /> */}
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -156,7 +228,16 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
+    height: 100,
+    // marginTop: StatusBar.currentHeight || 0,
+  },
+  scrollView: {
+    height: height,
+  },
+  card: {
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 10,
   },
   item: {
     backgroundColor: '#f9c2ff',

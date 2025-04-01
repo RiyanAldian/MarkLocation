@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, useCallback} from 'react';
 import {
   StyleSheet,
   View,
@@ -9,16 +9,25 @@ import {
   ActivityIndicator,
   Button,
   TouchableOpacity,
-  TextInput,
   RefreshControl,
 } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import {getDistance} from 'geolib';
 import {createStaticNavigation, useNavigation} from '@react-navigation/native';
-import {Modal, Portal, Text, PaperProvider} from 'react-native-paper';
+import {
+  Modal,
+  Portal,
+  Text,
+  PaperProvider,
+  TextInput,
+} from 'react-native-paper';
+
+import {useFocusEffect} from '@react-navigation/native';
 
 export default function MapScreen({route}) {
+  const [refreshKey, setRefreshKey] = React.useState(0);
+
   const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState(null);
@@ -27,10 +36,10 @@ export default function MapScreen({route}) {
   const [isChoosingDestination, setIsChoosingDestination] = useState(false);
   const mapRef = useRef(null);
 
-  const [selectedId, setSelectedId] = useState();
+  // const [selectedId, setSelectedId] = useState();
   const [listData, setListData] = useState([]);
   const count = useRef(null);
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
 
   const [visible, setVisible] = React.useState(false);
 
@@ -39,16 +48,20 @@ export default function MapScreen({route}) {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-  const containerStyle = {backgroundColor: 'white', padding: 20};
-  //   const navigation = useNavigation();
-  useEffect(() => {
-    if (count.current == null) {
-      fetchData();
-    }
-    return () => {
-      count.current = 1;
-    };
-  }, []);
+  const containerStyle = {backgroundColor: 'white', padding: 20, margin: 10};
+  useFocusEffect(
+    useCallback(() => {
+      // Ganti key untuk trigger re-render
+      setRefreshKey(prevKey => prevKey + 1);
+      if (count.current == null) {
+        fetchData();
+        console.log(refreshKey);
+      }
+      return () => {
+        count.current = 1;
+      };
+    }, []),
+  );
 
   const fetchData = async () => {
     const requestOptions = {
@@ -184,27 +197,29 @@ export default function MapScreen({route}) {
     }
 
     if (nameLocation && address) {
-      fetch(
-        'http://pinlocation.aldiandev.com/api/location?name_location=' +
-          nameLocation +
-          '&address=' +
-          address +
-          '&latitude=' +
-          source.latitude +
-          '&longitude=' +
-          source.longitude,
-        requestOptions,
-      )
+      var url =
+        'https://pinlocation.aldiandev.com/api/location?name_location=' +
+        nameLocation +
+        '&address=' +
+        address +
+        '&latitude=' +
+        source.latitude +
+        '&longitude=' +
+        source.longitude;
+      fetch(url, requestOptions)
         .then(response => response.text())
         .then(result => {
           let res = JSON.parse(result);
-
+          console.log(url);
           if (res.status) {
             setVisible(false);
             onChangeAddress('');
             onChangeName('');
             setSource(null);
             onRefresh();
+            console.log('berhasil');
+          } else {
+            console.log('gagal');
           }
         })
         .catch(error => console.error(error));
@@ -218,7 +233,7 @@ export default function MapScreen({route}) {
 
   return (
     <PaperProvider>
-      <View style={styles.container}>
+      <View key={refreshKey} style={styles.container}>
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
@@ -279,6 +294,8 @@ export default function MapScreen({route}) {
           visible={visible}
           onDismiss={hideModal}
           contentContainerStyle={containerStyle}>
+          <Text variant="titleLarge">Input Location</Text>
+          <Text></Text>
           <TextInput
             style={styles.input}
             onChangeText={onChangeName}
@@ -294,16 +311,7 @@ export default function MapScreen({route}) {
           <View>
             <Text></Text>
           </View>
-          <TouchableOpacity
-            style={[styles.item]}
-            onPress={() => {
-              // hapusData(item.id);
-              simpanData();
-            }}>
-            <View style={[styles.buttonSimpan]}>
-              <Text style={[styles.title]}>Simpan</Text>
-            </View>
-          </TouchableOpacity>
+          <Button title="Simpan" onPress={() => simpanData()} />
         </Modal>
       </Portal>
     </PaperProvider>

@@ -37,18 +37,34 @@ const TabScreen = props => {
           headerShown: false,
           tabBarLabel: 'Home',
           unmountOnBlur: true,
-          //   tabBarIcon: ({color}) => (
-          //     <MaterialCommunityIcons name="home" color={color} size={26} />
-          //   ),
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="home" color={color} size={26} />
+            // <Icon name="home" backgroundColor="#3b5998" />
+          ),
         }}
       />
       <Tab.Screen
         name="MapScreen"
         // screenOptions={{ headerShown: true }}
         component={MapScreen}
+        // listeners={({navigation}) => ({
+        //   tabPress: e => {
+        //     e.preventDefault(); // Mencegah navigasi default
+        //     navigation.navigate('MapScreen', {refresh:}); // Kirim parameter random untuk trigger update
+        //   },
+        // })}
         options={{
           title: 'MapScreen',
           unmountOnBlur: true,
+
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons
+              name="google-maps"
+              color={color}
+              size={26}
+            />
+            // <Icon name="home" backgroundColor="#3b5998" />
+          ),
         }}
         // options={{
         //   headerShown: true,

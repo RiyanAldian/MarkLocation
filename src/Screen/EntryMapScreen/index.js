@@ -1,16 +1,9 @@
 /* eslint-disable prettier/prettier */
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {Button, Checkbox} from 'react-native-paper';
-import MapView, {Marker, Polyline} from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
+import {Button, Checkbox, Appbar, TextInput} from 'react-native-paper';
+// import MapView, {Marker, Polyline} from 'react-native-maps';
+// import Geolocation from '@react-native-community/geolocation';
 
 const EntryMapScreen = route => {
   const [nameLocation, onChangeName] = React.useState('');
@@ -40,7 +33,7 @@ const EntryMapScreen = route => {
     };
 
     fetch(
-      'http://pinlocation.aldiandev.com/api/location/' +
+      'https://pinlocation.aldiandev.com/api/location/' +
         route.route.params.itemId,
       requestOptions,
     )
@@ -62,7 +55,7 @@ const EntryMapScreen = route => {
       redirect: 'follow',
     };
     fetch(
-      'http://pinlocation.aldiandev.com/api/location/' +
+      'https://pinlocation.aldiandev.com/api/location/' +
         idData +
         '?name_location=' +
         nameLocation +
@@ -77,6 +70,7 @@ const EntryMapScreen = route => {
       .then(response => response.text())
       .then(result => {
         let res = JSON.parse(result);
+        console.log(res);
         if (res.status) {
           Alert.alert('Data Berhasil Diupadate');
         }
@@ -87,38 +81,50 @@ const EntryMapScreen = route => {
 
   return (
     <View>
-      <Text></Text>
-      <Text>Nama Lokasi</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={onChangeName}
-        value={nameLocation}
-        placeholder="Input Nama Lokasi"
-      />
-      <Text>Alamat</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={onChangeAddress}
-        value={address}
-        placeholder="Input Alamat"
-      />
-      <Checkbox
-        status={checked ? 'checked' : 'unchecked'}
-        onPress={() => {
-          setChecked(!checked);
-        }}
-      />
+      <Appbar.Header>
+        <Appbar.Content title="Edit Data" />
+      </Appbar.Header>
+      <View style={styles.textInput}>
+        <Text></Text>
+        <Text>Nama Lokasi</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeName}
+          value={nameLocation}
+          placeholder="Input Nama Lokasi"
+        />
+        <Text></Text>
 
-      <TouchableOpacity
-        onPress={() => {
-          updateData();
-        }}>
-        <Button>Ubah Data</Button>
-      </TouchableOpacity>
+        <Text>Alamat</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeAddress}
+          value={address}
+          placeholder="Input Alamat"
+        />
+        {/* <Checkbox
+          status={checked ? 'checked' : 'unchecked'}
+          onPress={() => {
+            setChecked(!checked);
+          }}
+        /> */}
+        <Text></Text>
+        <Button
+          mode="contained"
+          onPress={() => {
+            updateData();
+          }}>
+          Ubah Data
+        </Button>
+      </View>
     </View>
   );
 };
 
 export default EntryMapScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  textInput: {
+    margin: 10,
+  },
+});
